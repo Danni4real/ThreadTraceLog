@@ -1,5 +1,4 @@
 #include <thread>
-#include <cstring>
 #include <unistd.h>
 
 #include "ThreadTraceLog.h"

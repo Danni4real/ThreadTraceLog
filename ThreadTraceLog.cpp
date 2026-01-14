@@ -220,8 +220,7 @@ void ThreadTraceLog::log_scope_enter(
 
     std::string log_msg;
     log_msg.reserve(256);
-    log_msg.append(gen_head());
-    log_msg.append("[I]");
+    log_msg.append(gen_head(InfoLevel));
 
     const std::string indent((current_depth > 0 ? current_depth - 1 : 0), '-');
     log_msg.append(indent);
@@ -250,8 +249,7 @@ void ThreadTraceLog::log_scope_exit(
     // same as enter: allow logging regardless of depth (defensive)
     std::string log_msg;
     log_msg.reserve(256);
-    log_msg.append(gen_head());
-    log_msg.append("[I]");
+    log_msg.append(gen_head(InfoLevel));
 
     log_msg.append("<");
     const std::string indent((current_depth > 0 ? current_depth - 1 : 0), '-');
@@ -284,12 +282,9 @@ std::string ThreadTraceLog::gen_log(const std::string &file,
                                     const std::string &msg) {
     std::string log_msg;
     log_msg.reserve(256);
-    log_msg.append(gen_head());
-    log_msg.append("[");
-    log_msg.append(1, level);
-    log_msg.append("]");
+    log_msg.append(gen_head(level));
 
-    const std::string indent(ThreadDepth::getInstance().get(), '-');
+    const std::string indent(ThreadDepth::getInstance().get(), ' ');
     log_msg.append(indent);
     log_msg.append("  ");
     log_msg.append(msg);
@@ -323,7 +318,7 @@ std::string ThreadTraceLog::refine_function_name(const std::string &func_name) {
     return refined;
 }
 
-std::string ThreadTraceLog::gen_head() {
+std::string ThreadTraceLog::gen_head(const char level) {
     const auto color_code = ThreadColor::getInstance().color_code();
     if (color_code == nullptr || *color_code == '\0') {
         return "";
@@ -331,6 +326,17 @@ std::string ThreadTraceLog::gen_head() {
 
     std::string head;
     head.reserve(128);
+    head.append("[");
+    switch (level) {
+        case InfoLevel: head.append("\x1b[92m"/*green*/); break;
+        case WarnLevel: head.append("\x1b[93m"/*yellow*/); break;
+        case ErrorLevel: head.append("\x1b[91m"/*red*/); break;
+        case DebugLevel: head.append("\x1b[94m"/*blue*/); break;
+            default:;
+    }
+    head.append(1,level);
+    head.append(ResetColorCode);
+    head.append("]");
 
     head.append(color_code);
 
