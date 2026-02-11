@@ -24,6 +24,10 @@
 // require const char* argument
 #define log_scope(scope_name) ThreadDepthKeeper k2(FILENAME_, __LINE__, scope_name, false)
 
+// require const char* argument and format arguments
+#define log_scope_format(scope_name, ...) \
+    ThreadDepthKeeper k1(FILENAME_, __LINE__, scope_name, true, printf_to_string(__VA_ARGS__))；
+
 // log_info/log_warn/log_error/log_debug require format arguments
 #define log_info(...)  ThreadTraceLog::log(FILENAME_, __LINE__, InfoLevel, printf_to_string(__VA_ARGS__))
 #define log_warn(...)  ThreadTraceLog::log(FILENAME_, __LINE__, WarnLevel, printf_to_string(__VA_ARGS__))
