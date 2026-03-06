@@ -10,6 +10,7 @@
 #include <string>
 #include <cstdio>
 #include <thread>
+#include <iomanip>
 #include <sstream>
 #include <cstdarg>
 #include <unistd.h>
@@ -19,8 +20,8 @@
 
 
 #define MODULE_NAME "Test"
-
-//#define USE_SPDLOG_AS_PRINTER // default use spd log as printer
+#define ADD_TIME_LABEL // add current time info to log print
+// #define USE_SPDLOG_AS_PRINTER // default use spd log as printer
 #ifdef USE_SPDLOG_AS_PRINTER
 
 #include <spdlog/spdlog.h>
@@ -127,6 +128,24 @@ std::string printf_to_string(const char *format, ...) {
 
     result.resize(static_cast<size_t>(written));
     return result;
+}
+
+std::string current_time() {
+    auto now = std::chrono::system_clock::now();
+
+    std::time_t now_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+        now.time_since_epoch() % std::chrono::seconds(1)
+    );
+
+    std::tm local_time = *std::localtime(&now_time);
+
+    std::stringstream time;
+    time << std::put_time(&local_time, "%Y-%m-%d %H:%M:%S")
+            << "." << std::setfill('0') << std::setw(3) << ms.count();
+
+    return time.str();
 }
 
 ThreadName &ThreadName::getInstance() {
@@ -326,6 +345,13 @@ std::string ThreadTraceLog::gen_head(const char level) {
 
     std::string head;
     head.reserve(128);
+
+#ifdef ADD_TIME_LABEL
+    head.append("[");
+    head.append(current_time());
+    head.append("]");
+#endif
+
     head.append("[");
     switch (level) {
         case InfoLevel: head.append("\x1b[92m"/*green*/); break;
