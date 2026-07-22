@@ -13,6 +13,12 @@
 #include <utility>
 #include <functional>
 
+// integrate enum2str(https://github.com/Danni4real/enum2str) to print enum's name(instead of value) in call trace
+// #define INTEGRATE_ENUM2STR
+#ifdef INTEGRATE_ENUM2STR
+#include "enum2str.h"
+#endif
+
 // pass all or some call arguments
 #define log_call(...) \
     ThreadDepthKeeper k1(FILENAME_, __LINE__, __PRETTY_FUNCTION__, true, split_args_str(std::string(#__VA_ARGS__)), ArgValues(__VA_ARGS__).str_list());
@@ -37,6 +43,31 @@
 // require const char* argument
 #define log_set_thread_name(...) ThreadName::getInstance().set(__VA_ARGS__)
 
+#define CHOOSE_TRACE_X(_0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, TRACE_X, ...) TRACE_X
+
+#define TRACE(...) \
+    CHOOSE_TRACE_X(, ##__VA_ARGS__, \
+              TRACE_10, TRACE_9, TRACE_8, TRACE_7, TRACE_6, TRACE_5, TRACE_4, TRACE_3, TRACE_2, TRACE_1, TRACE_0) \
+    (__VA_ARGS__)
+
+#define TRACE_0() \
+    () { log_call();
+
+#define TRACE_2(t1, v1) \
+    (t1 v1) { log_call(v1);
+
+#define TRACE_4(t1, v1, t2, v2) \
+    (t1 v1, t2 v2) { log_call(v1, v2);
+
+#define TRACE_6(t1, v1, t2, v2, t3, v3) \
+    (t1 v1, t2 v2, t3 v3) { log_call(v1, v2, v3);
+
+#define TRACE_8(t1, v1, t2, v2, t3, v3, t4, v4) \
+    (t1 v1, t2 v2, t3 v3, t4 v4) { log_call(v1, v2, v3, v4);
+
+#define TRACE_10(t1, v1, t2, v2, t3, v3, t4, v4, t5, v5) \
+    (t1 v1, t2 v2, t3 v3, t4 v4, t5 v5) { log_call(v1, v2, v3, v4, v5);
+
 #define FILENAME_ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 
 constexpr char InfoLevel = 'I';
@@ -50,6 +81,13 @@ std::vector<std::string> split_args_str(const std::string &str);
 
 template<typename T>
 std::string to_str(const T &value) {
+
+#ifdef INTEGRATE_ENUM2STR
+    if constexpr (std::is_enum_v<T>) {
+        return enum2str(value);
+    }
+#endif
+
     std::ostringstream oss;
     oss << value;
     return oss.str();
