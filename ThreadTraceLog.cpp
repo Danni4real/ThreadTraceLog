@@ -239,7 +239,7 @@ void ThreadTraceLog::log_scope_enter(
 
     std::string log_msg;
     log_msg.reserve(256);
-    log_msg.append(gen_head(InfoLevel));
+    log_msg.append(gen_head(DebugLevel));
 
     const std::string indent((current_depth > 0 ? current_depth - 1 : 0), '-');
     log_msg.append(indent);
@@ -268,7 +268,7 @@ void ThreadTraceLog::log_scope_exit(
     // same as enter: allow logging regardless of depth (defensive)
     std::string log_msg;
     log_msg.reserve(256);
-    log_msg.append(gen_head(InfoLevel));
+    log_msg.append(gen_head(DebugLevel));
 
     log_msg.append("<");
     const std::string indent((current_depth > 0 ? current_depth - 1 : 0), '-');
