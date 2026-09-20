@@ -21,7 +21,7 @@
 
 // pass all or some call arguments
 #define log_call(...) \
-    ThreadDepthKeeper k1(FILENAME_, __LINE__, __PRETTY_FUNCTION__, true, split_args_str(std::string(#__VA_ARGS__)), ArgValues(__VA_ARGS__).str_list());
+    ThreadDepthKeeper k1(FILENAME_, __LINE__, __PRETTY_FUNCTION__, true, split_args_str(std::string(#__VA_ARGS__)), make_argvalues(__VA_ARGS__).str_list());
 
 // require format arguments
 #define log_call_format(...) \
@@ -116,7 +116,6 @@ private:
     std::function<void(const std::string &)> m_printer;
 };
 
-
 template<typename... Args>
 class ArgValues {
     std::tuple<Args...> arg_values;
@@ -134,6 +133,22 @@ public:
     }
 };
 
+template<>
+class ArgValues<> {
+public:
+    [[nodiscard]] std::vector<std::string> str_list() const {
+        return {};
+    }
+};
+
+inline ArgValues<> make_argvalues() {
+    return ArgValues<>{};
+}
+
+template<typename...Args>
+auto make_argvalues(Args&&... args) {
+    return ArgValues(std::forward<Args>(args)...);
+}
 
 class ThreadTraceLog {
 public:
