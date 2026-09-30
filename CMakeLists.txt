@@ -2,7 +2,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
 PROJECT(ThreadTraceLog)
 
 SET(Bin ThreadTraceLog)
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Os -W -Wno-error=format-security --std=c++17")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Os -W -Wno-error=format-security --std=gnu++17")
 
 INCLUDE_DIRECTORIES(
         /usr/include/
