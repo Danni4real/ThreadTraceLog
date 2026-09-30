@@ -8,3 +8,6 @@ A C++ logger, features:
 4. Print function name and it's arguments;
 5. Print exit log when exit scope/function;
 6. Indent when goes into new scope/function;
+
+Note:
+Must add -std=gnu++17(or above) to compile flags or SET(CMAKE_CXX_STANDARD 17)(or above) in CMakeLists
