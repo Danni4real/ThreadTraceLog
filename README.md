@@ -10,4 +10,5 @@ A C++ logger, features:
 6. Indent when goes into new scope/function;
 
 Note:
+
 Must add -std=gnu++17(or above) to compile flags or SET(CMAKE_CXX_STANDARD 17)(or above) in CMakeLists
