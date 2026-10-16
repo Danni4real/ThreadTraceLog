@@ -11,4 +11,4 @@ A C++ logger, features:
 
 Note:
 
-Must add -std=gnu++17(or above) to compile flags or SET(CMAKE_CXX_STANDARD 17)(or above) in CMakeLists
+Must add -std=gnu++17(or above) to compile flags
