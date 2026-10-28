@@ -4,6 +4,11 @@
 
 void func_3 TRACE(int,i, bool,b, float,f, char,c, const std::string&,s) // Notice: remove first left brace !!!
 
+    log_debug_var(i);
+    log_info_var(b);
+    log_warn_var(f);
+    log_error_var(c);
+
     {
         log_scope("scope");
 
