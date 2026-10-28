@@ -40,6 +40,11 @@
 #define log_error(...) ThreadTraceLog::log(FILENAME_, __LINE__, ErrorLevel, printf_to_string(__VA_ARGS__))
 #define log_debug(...) ThreadTraceLog::log(FILENAME_, __LINE__, DebugLevel, printf_to_string(__VA_ARGS__))
 
+#define log_info_var(...)  ThreadTraceLog::log_variable(FILENAME_, __LINE__, InfoLevel,  std::string(#__VA_ARGS__), __VA_ARGS__)
+#define log_warn_var(...)  ThreadTraceLog::log_variable(FILENAME_, __LINE__, WarnLevel,  std::string(#__VA_ARGS__), __VA_ARGS__)
+#define log_error_var(...) ThreadTraceLog::log_variable(FILENAME_, __LINE__, ErrorLevel, std::string(#__VA_ARGS__), __VA_ARGS__)
+#define log_debug_var(...) ThreadTraceLog::log_variable(FILENAME_, __LINE__, DebugLevel, std::string(#__VA_ARGS__), __VA_ARGS__)
+
 // require const char* argument
 #define log_set_thread_name(...) ThreadName::getInstance().set(__VA_ARGS__)
 
@@ -165,6 +170,17 @@ public:
                     unsigned int line,
                     char level,
                     const std::string &info);
+
+    template <typename T>
+    static void log_variable(const std::string& file,
+                             unsigned int line,
+                             char level,
+                             const std::string& var_name,
+                             const T& var_value) {
+        std::ostringstream oss;
+        oss << var_name << " = " << var_value;
+        log(file, line, level, oss.str());
+    }
 
 private:
     static std::string gen_log(const std::string &file,
