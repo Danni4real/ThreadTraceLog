@@ -17,6 +17,15 @@ void func_3 TRACE(int,i, bool,b, float,f, char,c, const std::string&,s) // Notic
         log_warn("%s", "warn");
         log_error("%s", "error");
     }
+
+    log_disable_info_print();
+    log_disable_warn_print();
+    log_disable_debug_print();
+
+    log_debug("disabled %s", "debug");
+    log_info("disabled %s", "info");
+    log_warn("disabled %s", "warn");
+    log_error("disabled %s", "error");
 }
 
 void func_2(int i) {
@@ -32,6 +41,7 @@ void func_1(const std::string& s) {
 }
 
 int main() {
+    log_set_process_name("test");
     log_call();
 
     std::thread t1([] {
