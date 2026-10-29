@@ -19,7 +19,6 @@
 #include <functional>
 
 
-#define MODULE_NAME "Test"
 #define ADD_TIME_LABEL // add current time info to log print
 // #define USE_SPDLOG_AS_PRINTER // default use spd log as printer
 #ifdef USE_SPDLOG_AS_PRINTER
@@ -257,7 +256,9 @@ void ThreadTraceLog::log_scope_enter(
 
     log_msg.append(gen_tail(file, line));
 
-    LogPrinter::getInstance().print(log_msg);
+    if (m_debug_print_enabled) {
+        LogPrinter::getInstance().print(log_msg);
+    }
 }
 
 void ThreadTraceLog::log_scope_exit(
@@ -284,15 +285,45 @@ void ThreadTraceLog::log_scope_exit(
 
     log_msg.append(ResetColorCode); // reset color
 
-    LogPrinter::getInstance().print(log_msg);
+    if (m_debug_print_enabled) {
+        LogPrinter::getInstance().print(log_msg);
+    }
 }
 
 void ThreadTraceLog::log(const std::string &file,
                          const unsigned int line,
                          const char level,
                          const std::string &info) {
+    if (level == DebugLevel && !m_debug_print_enabled) {
+        return;
+    }
+
+    if (level == WarnLevel && !m_warn_print_enabled) {
+        return;
+    }
+
+    if (level == InfoLevel && !m_info_print_enabled) {
+        return;
+    }
+    
     LogPrinter::getInstance().print(
         gen_log(file, line, level, info));
+}
+
+void ThreadTraceLog::set_process_name(const std::string& name) {
+    m_process_name = name;
+}
+
+void ThreadTraceLog::disable_info_print() {
+    m_info_print_enabled = false;
+}
+
+void ThreadTraceLog::disable_warn_print() {
+    m_warn_print_enabled = false;
+}
+
+void ThreadTraceLog::disable_debug_print() {
+    m_debug_print_enabled = false;
 }
 
 std::string ThreadTraceLog::gen_log(const std::string &file,
@@ -367,7 +398,7 @@ std::string ThreadTraceLog::gen_head(const char level) {
     head.append(color_code);
 
     head.append("[");
-    head.append(MODULE_NAME);
+    head.append(m_process_name);
     head.append("][");
 
     if (ThreadName::getInstance().get().empty()) {
