@@ -46,7 +46,12 @@
 #define log_debug_var(...) ThreadTraceLog::log_variable(FILENAME_, __LINE__, DebugLevel, std::string(#__VA_ARGS__), __VA_ARGS__)
 
 // require const char* argument
+#define log_set_process_name(...) ThreadTraceLog::set_process_name(__VA_ARGS__)
 #define log_set_thread_name(...) ThreadName::getInstance().set(__VA_ARGS__)
+
+#define log_disable_info_print() ThreadTraceLog::disable_info_print();
+#define log_disable_warn_print() ThreadTraceLog::disable_warn_print();
+#define log_disable_debug_print() ThreadTraceLog::disable_debug_print();
 
 #define CHOOSE_TRACE_X(_0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, TRACE_X, ...) TRACE_X
 
@@ -171,6 +176,12 @@ public:
                     char level,
                     const std::string &info);
 
+    static void set_process_name(const std::string& name);
+
+    static void disable_info_print();
+    static void disable_warn_print();
+    static void disable_debug_print();
+
     template <typename T>
     static void log_variable(const std::string& file,
                              unsigned int line,
@@ -194,6 +205,12 @@ private:
 
     static std::string gen_tail(const std::string &file,
                                 unsigned int line);
+
+    static inline bool m_info_print_enabled{true};
+    static inline bool m_warn_print_enabled{true};
+    static inline bool m_debug_print_enabled{true};
+
+    static inline std::string m_process_name;
 };
 
 
