@@ -12,4 +12,4 @@ A C++ logger, features:
 
 Note:
 
-  Must add -std=gnu++17 (or above) to compile flags
+1. Must add -std=gnu++17 (or above) to compile flags
