@@ -14,7 +14,7 @@
 #include <functional>
 
 // integrate magic_enum to print enum's name(instead of value), use log_xx_fmt if need to print enum value
-#define INTEGRATE_MAGIC_ENUM
+// #define INTEGRATE_MAGIC_ENUM
 #ifdef INTEGRATE_MAGIC_ENUM
 #include "magic_enum.hpp"
 #endif
