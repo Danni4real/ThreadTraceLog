@@ -13,10 +13,10 @@
 #include <utility>
 #include <functional>
 
-// integrate enum2str(https://github.com/Danni4real/enum2str) to print enum's name(instead of value) in call trace
-// #define INTEGRATE_ENUM2STR
-#ifdef INTEGRATE_ENUM2STR
-#include "enum2str.h"
+// integrate magic_enum to print enum's name(instead of value), use log_xx_fmt if need to print enum value
+#define INTEGRATE_MAGIC_ENUM
+#ifdef INTEGRATE_MAGIC_ENUM
+#include "magic_enum.hpp"
 #endif
 
 // pass all or some call arguments
@@ -34,16 +34,22 @@
 #define log_scope_format(scope_name, ...) \
     ThreadDepthKeeper k1(FILENAME_, __LINE__, scope_name, true, printf_to_string(__VA_ARGS__));
 
-// log_info/log_warn/log_error/log_debug require format arguments
-#define log_info(...)  ThreadTraceLog::log(FILENAME_, __LINE__, InfoLevel, printf_to_string(__VA_ARGS__))
-#define log_warn(...)  ThreadTraceLog::log(FILENAME_, __LINE__, WarnLevel, printf_to_string(__VA_ARGS__))
-#define log_error(...) ThreadTraceLog::log(FILENAME_, __LINE__, ErrorLevel, printf_to_string(__VA_ARGS__))
-#define log_debug(...) ThreadTraceLog::log(FILENAME_, __LINE__, DebugLevel, printf_to_string(__VA_ARGS__))
+#define log_info(...)  ThreadTraceLog::log(FILENAME_, __LINE__, InfoLevel, args_to_str(__VA_ARGS__))
+#define log_warn(...)  ThreadTraceLog::log(FILENAME_, __LINE__, WarnLevel, args_to_str(__VA_ARGS__))
+#define log_error(...) ThreadTraceLog::log(FILENAME_, __LINE__, ErrorLevel, args_to_str(__VA_ARGS__))
+#define log_debug(...) ThreadTraceLog::log(FILENAME_, __LINE__, DebugLevel, args_to_str(__VA_ARGS__))
 
+// print single var name + var value
 #define log_info_var(...)  ThreadTraceLog::log_variable(FILENAME_, __LINE__, InfoLevel,  std::string(#__VA_ARGS__), __VA_ARGS__)
 #define log_warn_var(...)  ThreadTraceLog::log_variable(FILENAME_, __LINE__, WarnLevel,  std::string(#__VA_ARGS__), __VA_ARGS__)
 #define log_error_var(...) ThreadTraceLog::log_variable(FILENAME_, __LINE__, ErrorLevel, std::string(#__VA_ARGS__), __VA_ARGS__)
 #define log_debug_var(...) ThreadTraceLog::log_variable(FILENAME_, __LINE__, DebugLevel, std::string(#__VA_ARGS__), __VA_ARGS__)
+
+// require format arguments
+#define log_info_fmt(...)  ThreadTraceLog::log(FILENAME_, __LINE__, InfoLevel, printf_to_string(__VA_ARGS__))
+#define log_warn_fmt(...)  ThreadTraceLog::log(FILENAME_, __LINE__, WarnLevel, printf_to_string(__VA_ARGS__))
+#define log_error_fmt(...) ThreadTraceLog::log(FILENAME_, __LINE__, ErrorLevel, printf_to_string(__VA_ARGS__))
+#define log_debug_fmt(...) ThreadTraceLog::log(FILENAME_, __LINE__, DebugLevel, printf_to_string(__VA_ARGS__))
 
 // require const char* argument
 #define log_set_process_name(...) ThreadTraceLog::set_process_name(__VA_ARGS__)
@@ -91,16 +97,19 @@ std::vector<std::string> split_args_str(const std::string &str);
 
 template<typename T>
 std::string to_str(const T &value) {
-
-#ifdef INTEGRATE_ENUM2STR
+#ifdef INTEGRATE_MAGIC_ENUM
     if constexpr (std::is_enum_v<T>) {
-        return enum2str(value);
+        return std::string(magic_enum::enum_name(value));
+    } else {
+        std::ostringstream oss;
+        oss << value;
+        return oss.str();
     }
-#endif
-
+#else
     std::ostringstream oss;
     oss << value;
     return oss.str();
+#endif
 }
 
 // overload for std::string to avoid extra streaming overhead
@@ -112,6 +121,16 @@ inline std::string to_str(const std::string &value) {
 // overload for C strings: produce their contents instead of pointer formatting
 inline std::string to_str(const char *value) {
     return value ? std::string(value) : std::string("");
+}
+
+template<typename T>
+std::string args_to_str(const T &t) {
+    return to_str(t);
+}
+
+template<typename First, typename... Rest>
+std::string args_to_str(const First &first, const Rest &... rest) {
+    return to_str(first) + ' ' + args_to_str(rest...);
 }
 
 class LogPrinter {
@@ -189,7 +208,7 @@ public:
                              const std::string& var_name,
                              const T& var_value) {
         std::ostringstream oss;
-        oss << var_name << " = " << var_value;
+        oss << var_name << " = " << to_str(var_value);
         log(file, line, level, oss.str());
     }
 
