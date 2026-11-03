@@ -24,14 +24,14 @@
     ThreadDepthKeeper k1(FILENAME_, __LINE__, __PRETTY_FUNCTION__, true, split_args_str(std::string(#__VA_ARGS__)), make_argvalues(__VA_ARGS__).str_list());
 
 // require format arguments
-#define log_call_format(...) \
+#define log_call_fmt(...) \
     ThreadDepthKeeper k1(FILENAME_, __LINE__, __PRETTY_FUNCTION__, true, printf_to_string(__VA_ARGS__));
 
 // require const char* argument
 #define log_scope(scope_name) ThreadDepthKeeper k2(FILENAME_, __LINE__, scope_name, false)
 
 // require const char* argument and format arguments
-#define log_scope_format(scope_name, ...) \
+#define log_scope_fmt(scope_name, ...) \
     ThreadDepthKeeper k1(FILENAME_, __LINE__, scope_name, true, printf_to_string(__VA_ARGS__));
 
 #define log_info(...)  ThreadTraceLog::log(FILENAME_, __LINE__, InfoLevel, args_to_str(__VA_ARGS__))
